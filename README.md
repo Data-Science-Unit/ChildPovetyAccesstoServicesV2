@@ -1,7 +1,7 @@
 # ChildPovetyAccesstoServicesV2
 Datasets for CPASv2 Project
 
-These datasets have been generated following the methodology developed by Watmough et. al. (https://www.nature.com/articles/s41597-022-01274-w) but with 100m resolution instead.
+These datasets have been generated following the methodology developed by Watmough et al. (https://www.nature.com/articles/s41597-022-01274-w) but with 100m resolution instead.
 
 Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 
