@@ -1,6 +1,20 @@
 # ChildPovetyAccesstoServicesV2
 Datasets for CPASv2 Project
 
+These datasets have been generated following the methodology developed by Watmough et. al. (https://www.nature.com/articles/s41597-022-01274-w) but with 100m resolution instead.
+
+Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
+
+This work is licensed under a
+[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa].
+
+[![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa]
+
+[cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
+[cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
+[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
+
+
 | Country                  | Link to Walking Time Map                                                                              | Link to Motorised Time Map                                                                                   |
 |:-------------------------|:------------------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------|
 | Algeria                  | https://s3.eidf.ac.uk/eidf158-walkingtraveltimemaps/service_area_Algeria_walking.tif                  | https://s3.eidf.ac.uk/eidf158-motorised-travel-time-maps/service_area_Algeria_motorised.tif                  |
