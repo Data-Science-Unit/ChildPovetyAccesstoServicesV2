@@ -71,3 +71,32 @@ This work is licensed under a
 | eSwatini                 | https://s3.eidf.ac.uk/eidf158-walkingtraveltimemaps/service_area_eSwatini_walking.tif                 | https://s3.eidf.ac.uk/eidf158-motorised-travel-time-maps/service_area_eSwatini_motorised.tif                 |
 | Nigeria                  | https://s3.eidf.ac.uk/eidf158-walkingtraveltimemaps/service_area_nga_walking.tif                      | https://s3.eidf.ac.uk/eidf158-motorised-travel-time-maps/service_area_nga_motorised.tif                      |
 | Zambia                      | https://s3.eidf.ac.uk/eidf158-walkingtraveltimemaps/service_area_zam_walking.tif                      | https://s3.eidf.ac.uk/eidf158-motorised-travel-time-maps/service_area_zam_motorised.tif                      |
+
+
+The travel speeds used for creating these datasets:
+| Road type (per HOT OpenStreetMap Road tags) | Motorised Travel Speed (kmph) | Walking Travel Speed (kmph) |
+|-----------------------------------------------|-------------------------------|-----------------------------|
+| Bridleway                                     | 4                             | 4                           |
+| Bus Stop                                      | 4                             | 4                           |
+| Cycleway                                      | 10                            | 4                           |
+| Footway                                       | 4                             | 4                           |
+| Motorway                                      | 50                            | 4                           |
+| Motorway Link                                 | 50                            | 4                           |
+| Path                                          | 4                             | 4                           |
+| Pedestrian                                    | 4                             | 4                           |
+| Primary                                       | 50                            | 4                           |
+| Primary Link                                  | 50                            | 4                           |
+| Residential                                   | 30                            | 4                           |
+| Road                                          | 30                            | 4                           |
+| Secondary                                     | 50                            | 4                           |
+| Secondary Link                                | 50                            | 4                           |
+| Steps                                         | 3                             | 3                           |
+| Tertiary                                      | 25                            | 4                           |
+| Tertiary Link                                 | 25                            | 4                           |
+| Track                                         | 10                            | 3                           |
+| Trunk                                         | 50                            | 4                           |
+| Trunk Link                                    | 50                            | 4                           |
+| Unclassified                                  | 4                             | 4                           |
+| Yes                                           | 50                            | 4                           |
+
+<br>
