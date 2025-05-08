@@ -1,0 +1,11 @@
+fuzzywuzzy
+numpy
+pandas
+osgeo
+geopandas
+skimage
+xarray
+rioxarray
+fiona
+rasterio
+configobj
