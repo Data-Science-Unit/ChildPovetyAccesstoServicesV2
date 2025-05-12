@@ -1,0 +1,42 @@
+---
+# NOTE: Pipeline should be run from root of project, so define paths relative to there
+Country: CountryName
+
+# Paths - Master files
+HealthMaster: path_to_destinations_file (.csv)
+RoadCosts: path_to_file_with_road_costs (.csv) e.g. C:/Projects/CPAsv2/Road_Costs_grw_2.csv
+LCCGlobal: path_to_LandCoverClassificationGlobalFile (.tif) e.g. C:/Projects/CPAsv2/PROBAV_LC100_global_v3.0.1_2016-conso_Discrete-Classification-map_EPSG-4326.tif
+
+# Paths - Country files
+Roads: hotosm_roads_file (.shp) e.g. C:\Projects\CPAsv2\Sudan\Roads\hotosm_sdn_roads_lines_shp.shp
+CountryBoundary: country_borders_from_hdx (.shp) e.g. C:\Projects\CPAsv2\Sudan\sdn_admbnda_adm0_cbs_nic_ssa_20200831.shp
+
+CropLCCPath: output_path_for_cropped_LCC e.g. C:\Projects\CPAsv2\Sudan\LCC_Sudan.tif
+RoadsSavePath: output_path_for_fixed_roads_file e.g. C:\Projects\CPAsv2\Sudan\Roads\Roads_Sudan.shp
+RoadsCostsSavePath: output_path_for_relevant_road_costs e.g. C:\Projects\CPAsv2\Sudan\Roads\Road_Costs_Sudan.csv
+HealthSavePath: output_path_for_subset_destinations_file e.g. C:\Projects\CPAsv2\Sudan\Sudan_health.shp
+
+EE Project: earth-engine-project-title 
+configTemplate: path_to_location_of_CPASconfig_template C:\Projects\CPAsv2\cpas.cfg
+motorisedConfig: output_path_for_motorised_config_file C:\Projects\CPAsv2\Sudan\Sudan_config_motorised.cfg
+walkingConfig: output_path_for_walking_config_file C:\Projects\CPAsv2\Sudan\Sudan_config_walking.cfg
+
+# Health
+Health:
+    run: True # set to True to subset global destinations file to specific country + save as shapefile from csv
+        
+FixRoads:
+    run: True # set to True to run following preprocessing
+    tags: True # creates a column 'tag' (which the CPAS code uses)
+    DisplayNewTypes: True # highlights any new road types not included in the road costs file
+    GetRoadCosts: True # creates subset of road costs file relevant to current country
+
+CropLCC:
+    run: True # to crop LCC to region of interest (CountryBoundary)
+    
+SRTM:
+    run: True # to generate SRTM DEM request in Google Earth Engine
+    
+createConfig:
+    run: True # to create motorised and walking config files which can then be passed to CPAS algorithm
+
