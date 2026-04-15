@@ -95,9 +95,22 @@ def compute_cost_path(csname, dname, invalid_loc, tag='Facility_n'):
     logging.info('load cost surface')
     costsurface = rioxarray.open_rasterio(csname, masked=True)
     # import destination locations
-    destinations = geopandas.read_file(
-        dname,
-        bbox=costsurface.rio.bounds())
+    destinations = geopandas.read_file(dname)
+    if costsurface.rio.crs is not None:
+        if destinations.crs is None:
+            raise ValueError(
+                "Destinations layer has no CRS, but cost surface CRS is defined. "
+                "Assign a CRS to destinations before running cpas-path."
+            )
+        if destinations.crs != costsurface.rio.crs:
+            destinations = destinations.to_crs(costsurface.rio.crs)
+        minx, miny, maxx, maxy = costsurface.rio.bounds()
+        destinations = destinations.cx[minx:maxx, miny:maxy]
+    else:
+        logging.warning(
+            "Cost surface has no CRS metadata. Destination reprojection was skipped; "
+            "make sure both layers are already in the same CRS."
+        )
     # select destination locations that are valid to use with cost surface
     logging.info('find locations')
     start_cells, status = find_location_cells(destinations, costsurface)
@@ -109,13 +122,20 @@ def compute_cost_path(csname, dname, invalid_loc, tag='Facility_n'):
         print(f"moved {count['m']} locations")
     if 'i' in count:
         print(f"found {count['i']} invalid locations")
-    with open(invalid_loc, 'w') as invalid_out:
+    with open(invalid_loc, 'w', encoding='utf-8') as invalid_out:
         for row in destinations[(destinations['status'] == 'i')].itertuples():
             invalid_out.write(f'{row.geometry.x},{row.geometry.y}')
             if hasattr(row, tag):
                 invalid_out.write(',"{}"'.format(getattr(row, tag)))
             invalid_out.write('\n')
-    # find costs algorithm does not deal with np.NaN so change these
+    if len(start_cells) == 0:
+        raise ValueError(
+            "No valid start points were found for front propagation. "
+            f"Destinations in bounds: {len(destinations)}; invalid: {count.get('i', 0)}. "
+            "Check that destination points overlap the cost surface extent and that at least one "
+            "point falls on a non-null traversable cell."
+        )
+    # find costs algorithm does not deal with np.nan so change these
     # to -9999 in cost surface any negative values are ignored
     costsurface = costsurface.fillna(-9999)
     # cs.data = np.where(cs.data != cs.data, -9999, cs.data)

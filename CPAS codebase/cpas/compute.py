@@ -19,14 +19,34 @@ import logging
 import sys
 
 import rioxarray
-import fiona
+import geopandas
 import xarray
 import numpy
 from . import costsurface
 from .config import CpasConfig
 
 
-def speed_to_cost(speed, child_impact=1):
+def pixel_size_meters(reference):
+    """Return horizontal pixel size in meters for a raster-like DataArray."""
+    res_x = abs(reference.rio.resolution()[0])
+    crs = reference.rio.crs
+    if crs is not None and crs.is_projected:
+        return res_x
+
+    # Geographic CRS: convert degree cell width to meters at raster mid-latitude.
+    if 'y' in reference.coords and reference.sizes.get('y', 0) > 0:
+        lat = float(reference['y'].mean().item())
+    else:
+        logging.warning(
+            "Could not determine latitude from raster coordinates; using "
+            "equator conversion for degree-to-meter conversion."
+        )
+        lat = 0.0
+    meters_per_degree_lon = 111320.0 * numpy.cos(numpy.deg2rad(lat))
+    return res_x * max(abs(meters_per_degree_lon), 1.0)
+
+
+def speed_to_cost(speed, child_impact=1, reference=None):
     """
     convert speed surface to cost surface
 
@@ -37,6 +57,9 @@ def speed_to_cost(speed, child_impact=1):
     child_impact: factor applied when traveling
           with a child (default=1))
 
+    reference: raster-like object used to infer pixel size in meters.
+          If omitted, speed coordinates are used.
+
     Return
     ------
     cost surface
@@ -44,9 +67,10 @@ def speed_to_cost(speed, child_impact=1):
 
     # apply child impact factor and convert to m/s
     cost = speed * child_impact * 1000 / 3600
+    if reference is None:
+        reference = speed
     # compute the costsurface, ie time.
-    # the factor 111120 converts degree to m close to the equator
-    return abs(speed.rio.resolution()[0]) * 111120 / cost
+    return pixel_size_meters(reference) / cost
 
 
 def main():
@@ -74,7 +98,16 @@ def main():
         speed=cfg.roads_cfg['speed_column']
     )
     logging.info('loading roads')
-    roads = fiona.open(cfg.roads)
+    roads = geopandas.read_file(cfg.roads)
+    if landcover.rio.crs is not None:
+        if roads.crs is None:
+            raise ValueError(
+                "Roads layer has no CRS, but landcover CRS is defined. "
+                "Assign a CRS to roads before running cpas-compute."
+            )
+        if roads.crs != landcover.rio.crs:
+            roads = roads.to_crs(landcover.rio.crs)
+    roads = roads.iterfeatures()
     logging.info('constructing road speed cost surface')
     rws = costsurface.rasterizeAllRoads(roads, landcover, r_speedmap)
 
@@ -101,7 +134,9 @@ def main():
 
     # compute cost surface
     logging.info('constructing cost surface')
-    cs = speed_to_cost(ws * slope_impact, cfg.child_impact)
+    cs = speed_to_cost(ws * slope_impact, cfg.child_impact, reference=landcover)
+    if landcover.rio.crs is not None:
+        cs = cs.rio.write_crs(landcover.rio.crs, inplace=False)
 
     # write costsurface
     logging.info('writing cost surface')
@@ -110,11 +145,13 @@ def main():
     # consider water being passable
     # 10 is the code for open water
     logging.info('constructing water cost surface')
-    water = xarray.where(landcover == 10, cfg.waterspeed, numpy.NaN)
+    water = xarray.where(landcover == 10, cfg.waterspeed, numpy.nan)
     # convert water speed to time
     # 1 as children arnt slower than adults on motor boats...
-    water = speed_to_cost(water)
+    water = speed_to_cost(water, reference=landcover)
     cs = xarray.where(water.notnull(), water, cs)
+    if landcover.rio.crs is not None:
+        cs = cs.rio.write_crs(landcover.rio.crs, inplace=False)
 
     # write output
     logging.info('writing water cost surface')

@@ -95,8 +95,10 @@ def rasterizeAllRoads(roads, landcover, road_speed_map, maxspeed=True):
     an xarray containing the speed surface
     """
 
+    # Materialize once so multiple passes do not exhaust Fiona iterators.
+    road_features = list(roads)
     # extract road types from road shapefile
-    road_types = set([feature['properties']['tag'] for feature in roads])
+    road_types = set([feature['properties']['tag'] for feature in road_features])
 
     # modify index so that it matches the road types in the vector layer
     idx = road_speed_map.index.to_list()
@@ -107,9 +109,10 @@ def rasterizeAllRoads(roads, landcover, road_speed_map, maxspeed=True):
     road_speed_map.index = idx
 
     if maxspeed:
-        rcost = rasterizeAllRoadsMax(roads, landcover, road_speed_map)
+        rcost = rasterizeAllRoadsMax(road_features, landcover, road_speed_map)
     else:
-        rcost = rasterizeRoads(roads, landcover, road_speed_map.to_dict())
+        rcost = rasterizeRoads(road_features, landcover,
+                               road_speed_map.to_dict())
 
     # replace fill values with nans
     rcost = numpy.where(rcost == 0, numpy.nan, rcost)
